@@ -43,10 +43,6 @@ bool fmouse = 0; // no idea what this is for
 float yaw = -90.0f;
 float pitch = 0.0f;
 
-GLuint loadTexture(const char *path);
-glm::mat4 setModel(glm::vec3 translation, glm::vec3 scale, float rotationRadians, glm::vec3 rotate);
-bool collision(GameObject game_object, float vertices[]);
-
 
 int main(int argc, char *argv[])
 {
@@ -198,8 +194,8 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-     //   glEnable(GL_BLEND);
-    //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+    	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         options.particle_system_options = ParticleSystem_Option();
 
@@ -402,12 +398,12 @@ int main(int argc, char *argv[])
                 waterparticle_system.draw_and_update_particles(modelShader, delta_time);
             }
     
-            /*
+            
             if(world.particle_systems[i].type == "fireworks")
             {
                 fireworkparticle_system.update_system(modelShader, delta_time);
                 fireworkparticle_system.draw_and_update_particles(modelShader, delta_time);
-            }   */
+            }   
         }
 
         SDL_GL_SwapWindow(window);
@@ -419,56 +415,4 @@ int main(int argc, char *argv[])
 	SDL_Quit();
 
 	return 0;
-}
-
-/*
-bool collision(GameObject game_object, float vertices[])
-{
-    int vertices_size = sizeof(vertices) / sizeof(vertices[0]);
-
-    for(int i = 0; i < vertices_size; i++)
-    {
-        if(game_object.position )
-    }
-
-    return true;
-}
-*/
-
-// from learnopengl.com
-GLuint loadTexture(char const * path)
-{
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format = 0;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
 }
