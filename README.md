@@ -13,10 +13,10 @@ Hackrender in its current form is a conglomeration of animation methods that wil
 ### Images
 A preview of the particle engine is below:
 
-	![particles](http://i.imgur.com/6SwwNV9.png)
+![particles](http://i.imgur.com/6SwwNV9.png)
 
 Some gifs of the cloth sim:
 
-	![flatclothview](blob:https://imgur.com/f58466b3-26fe-4fdc-b1ea-ae1976903cec)
+![flatclothview](blob:https://imgur.com/f58466b3-26fe-4fdc-b1ea-ae1976903cec)
 
-	![lowerclothview](https://i.imgur.com/MeCfIaO.gifv)
+![lowerclothview](https://i.imgur.com/MeCfIaO.gifv)
