@@ -19,4 +19,6 @@ Some gifs of the cloth sim:
 
 ![](https://i.imgur.com/CmLoxh1.gif)
 
+From a different angle:
+
 ![](https://i.imgur.com/MeCfIaO.gifv)
