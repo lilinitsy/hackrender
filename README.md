@@ -17,6 +17,6 @@ A preview of the particle engine is below:
 
 Some gifs of the cloth sim:
 
-![flatclothview](blob:https://imgur.com/f58466b3-26fe-4fdc-b1ea-ae1976903cec)
+![flatclothview](https://github.com/lilinitsy/hackrender/tree/master/cloth_sim/gifs/cloth_1.gif)
 
-![lowerclothview](https://i.imgur.com/MeCfIaO.gifv)
+![lowerclothview](https://github.com/lilinitsy/hackrender/tree/master/cloth_sim/gifs/cloth_2.gif)
