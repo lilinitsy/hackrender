@@ -11,6 +11,11 @@
 
 #include "GameObject.h"
 
+
+/*
+	There's an issue with this that I haven't tracked down yet. 
+*/
+
 struct Octree
 {
 	Octree *children[8];

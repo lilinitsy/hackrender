@@ -1,4 +1,4 @@
-#ifndef ASTARSEARCH_H
+/*#ifndef ASTARSEARCH_H
 #define ASTARSEARCH_H
 
 #include <vector>
@@ -93,4 +93,4 @@ class AStarSearch : public Search
 		}
 };
 
-#endif
+#endif */

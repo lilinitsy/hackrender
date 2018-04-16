@@ -10,16 +10,29 @@
 #include "glm/gtx/string_cast.hpp"
 
 #include "Agent.h"
-#include "AStarSearch.h"
-#include "Djikstra.h"
+#include "DStarLiteSearch.h"
 #include "GameObject.h"
 #include "Graph.h"
 #include "model.h"
 #include "Octree.h"
 #include "Obstacle.h"
+#include "Queue.h"
 #include "raycast.h"
 #include "Shader.h"
 #include "utils.h"
+
+
+/*
+	The boid is the collection of agents.
+	Doesn't work perfectly, and in the long run, it should not store the obstacles vector,
+		nor node_models.
+	
+	More documentation will follow if we continue to use it, but I'd like to use ORCA or something better.
+
+	GraphNode *goal: This will probably have to change every few updates
+	GraphNode *start: The start node for the whole boid, for use in D* Lite.
+*/
+
 
 class Boid
 {
@@ -30,8 +43,9 @@ class Boid
 		std::vector<Model> node_models;
 		std::vector<GraphNode*> path;
 		GraphNode *goal;
-		AStarSearch search;
-		float k = 30.0f;
+		GraphNode *start;
+		DStarLiteSearch search;
+		float k = 40.0f;
 		float mass = 4.0f;
 		float max_velocity = 1.0f;
 
@@ -39,7 +53,7 @@ class Boid
 
 		Boid()
 		{
-			Search();
+			DStarLiteSearch();
 		}
 
 
@@ -101,7 +115,9 @@ class Boid
 			
 			make_graph_neighbours(obstacle_octree, goal_position);
 			visualize_node_positions();
-			path = search.find_path(graph, start_node, goal_node);
+			
+			search.initialize(graph, start_node, goal_node);
+			path = search.update(graph, start_node, goal_node);
 			printf("*******\nDONE WITH AGENT\n**********\n");
 		}
 
@@ -168,7 +184,7 @@ class Boid
 						for(int i = 0; i < path.size(); i++)
 						{
 							printf("vector index %d: (%f, %f, %f)\n",
-								path[i]->position.x, path[i]->position.y, path[i]->position.z);
+								i, path[i]->position.x, path[i]->position.y, path[i]->position.z);
 						}
 
 					}
@@ -181,7 +197,7 @@ class Boid
 
 				if(path.size() > 1 && can_see(path[1], obstacles))
 				{
-					printf("*****\CAN SEE NEXT NODE, removing (position)\n(%f, %f, %f), \n*****\n", 
+					printf("*****\nCAN SEE NEXT NODE, removing (position)\n(%f, %f, %f), \n*****\n", 
 						path[0]->position.x, path[0]->position.y, path[0]->position.z);
 					path.erase(path.begin());
 
@@ -189,7 +205,7 @@ class Boid
 					for(int i = 0; i < path.size(); i++)
 					{
 						printf("vector index %d: (%f, %f, %f)\n",
-							path[i]->position.x, path[i]->position.y, path[i]->position.z);
+							i, path[i]->position.x, path[i]->position.y, path[i]->position.z);
 					}
 				}
 
@@ -306,7 +322,7 @@ class Boid
 		}
 
 		void calculate_node_force(float delta_time)
-		{
+		{	
 			//glm::vec3 unit_vec_i = glm::normalize(path[0]->position - average_position); doesn't work??
 
 			#pragma omp parallel for

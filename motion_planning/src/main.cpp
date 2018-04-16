@@ -1,4 +1,4 @@
-#include "glad/glad.h"  //Include order can matter here
+#include "glad/glad.h"  
 #include <GLFW/glfw3.h>
 
 #include <SDL.h>
@@ -36,9 +36,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window, float delta_time);
 
 
-bool fmouse = 0;
-bool pause = true;
-
+bool fmouse = 0; // no idea what this is for
 float yaw = -90.0f;
 float pitch = 0.0f;
 float lastX = 800.0f / 2.0f;
@@ -47,6 +45,14 @@ float lastY = 600.0f / 2.0f;
 float lastFrame = 0.0f;
 
 Player *player = new Player(glm::vec3(20.0f, 1.0f, 3.0f));
+
+/* TODO:
+    Monday:
+        D* Lite - get it working with the Boids. Try with a Boid of size 1, then n.
+        Fix the octree. Probably will just take GameObject, Agent, Obstacle, Octree
+            to a new folder and test / bugfix on that.
+        ???
+*/
 
 
 
@@ -60,7 +66,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(screen_height, screen_height, "cloth_simulation_pointmass_draw", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(screen_height, screen_height, "CSCI5611_FINAL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -84,7 +90,6 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-
     srand(time(NULL));
 
     Shader default_shader("shaders/vertexModel.glsl", "shaders/fragmentModel.glsl");
@@ -105,13 +110,8 @@ int main(int argc, char *argv[])
     plane->model = glm::mat4();
     plane->in_colour = glm::vec4(0.2f, 0.8f, 0.5f, 0.9f);
 
-    Obstacle *test_sphere_obstacle = new Obstacle(glm::vec3(20.0f, 1.0f, 30.0f), 0.4f);
-    test_sphere_obstacle->model = Model("../models/sphere/sphere.obj");
-    
-
     Octree octree(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(50.0f, 50.0f, 50.0f));
     std::vector<Obstacle*> obstacle_list;
-    obstacle_list.push_back(test_sphere_obstacle);
 
     Octree agent_octree(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(50.0f, 50.0f, 50.0f));
     std::vector<Agent*> agent_list;
@@ -167,91 +167,78 @@ int main(int argc, char *argv[])
     float current_time = SDL_GetPerformanceCounter();	// time between current frame and last frame
     float last_time = 0;
 
-	while(!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
-        current_time = SDL_GetTicks();
-        float delta_time = 0.013f * 0.15f;
-        float dt = (float)(current_time - last_time) / 1000.0f;
-        last_time = current_time;
-        float move = delta_time * 200.0f;
-
-        bool validEvent = false;
-        printf("fps: %f\n", 1.0f / dt);
-
-        if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        {
-            glfwSetWindowShouldClose(window, true);
-        }
-
-        float cameraSpeed = 1.0f * delta_time;
-        
-        if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
-            player->camera_pos = glm::vec3(player->camera_pos.x + cameraSpeed * player->camera_front.x, 
-                player->camera_pos.y + cameraSpeed * player->camera_front.y,
-                player->camera_pos.z + cameraSpeed * player->camera_front.z);
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
-            player->camera_pos = glm::vec3(player->camera_pos.x - cameraSpeed * player->camera_front.x,
-                player->camera_pos.y - cameraSpeed * player->camera_front.y, 
-                player->camera_pos.z - cameraSpeed * player->camera_front.z);
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        {
-            player->camera_pos.y += cameraSpeed * 0.4f;
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        {
-            player->camera_pos.y -= cameraSpeed * 0.4f;
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            player->camera_pos -= glm::normalize(glm::cross(player->camera_front, player->camera_up)) * cameraSpeed;
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            player->camera_pos += glm::normalize(glm::cross(player->camera_front, player->camera_up)) * cameraSpeed;
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-        {
-            pause = !pause;
-        }
-
-        
-
+        float delta_time = 0.013f * 0.3f;
+        processInput(window, delta_time);
+    
         glm::mat4 view = glm::lookAt(player->camera_pos, player->camera_pos + player->camera_front, player->camera_up);
         glm::mat4 proj = glm::perspective(3.14f/4, screen_width / (float) screen_height, 0.01f, 100.0f); //FOV, aspect, near, far
         default_shader.setMat4("projection", proj);
         default_shader.setMat4("view", view);
         default_shader.use();
 
-        if(!pause)
-        {
-            boid.update(octree, agent_octree, delta_time);
-        }
-        
+        boid.update(octree, agent_octree, delta_time);
         boid.draw(default_shader);
 
         plane->draw(default_shader);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 	}
-   
+
     glfwTerminate();
 
 	return 0;
 }
+
+// from learnopengl.com
+void processInput(GLFWwindow *window, float delta_time)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+
+    float cameraSpeed = 1.0f * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        player->camera_pos = glm::vec3(player->camera_pos.x + cameraSpeed * player->camera_front.x, 
+            player->camera_pos.y + cameraSpeed * player->camera_front.y,
+            player->camera_pos.z + cameraSpeed * player->camera_front.z);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        player->camera_pos = glm::vec3(player->camera_pos.x - cameraSpeed * player->camera_front.x,
+            player->camera_pos.y - cameraSpeed * player->camera_front.y, 
+            player->camera_pos.z - cameraSpeed * player->camera_front.z);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        player->camera_pos.y += cameraSpeed * 0.4f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        player->camera_pos.y -= cameraSpeed * 0.4f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        player->camera_pos -= glm::normalize(glm::cross(player->camera_front, player->camera_up)) * cameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        player->camera_pos += glm::normalize(glm::cross(player->camera_front, player->camera_up)) * cameraSpeed;
+    }
+
+}
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

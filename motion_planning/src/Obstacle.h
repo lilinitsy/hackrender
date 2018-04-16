@@ -14,6 +14,11 @@
 #include "Shader.h"
 #include "utils.h"
 
+/*
+	Obstacle class
+		Similar to Agent.
+*/
+
 class Obstacle : public GameObject
 {
 	public:

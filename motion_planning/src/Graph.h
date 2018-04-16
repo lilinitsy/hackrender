@@ -10,6 +10,13 @@
 #include "glm/gtx/string_cast.hpp"
 
 
+/*
+	GraphNode struct stores the position of each node, each of its neighbours, and the costs.
+		Also has a heurustic, whether this node is the goal, and whether it has been visited.
+		The bool visited is probably not necessary.
+*/
+
+
 struct GraphNode
 {
 	glm::vec3 position;
@@ -19,16 +26,33 @@ struct GraphNode
 	bool visited = false;
 	bool is_goal = false;
 
+	float g = INFINITY;
+	float rhs = INFINITY;
+	std::pair<float, float> key;
+
 	GraphNode()
 	{
 		position = glm::vec3(0.0f, 0.0f, 0.0f);
 		heuristic = 1.0f;
+		key  = std::make_pair(
+							std::min(g, rhs + heuristic),
+							std::min(g, rhs));
 	}
 
 	GraphNode(glm::vec3 p, float h)
 	{
 		position = p;
 		heuristic = h;
+		key  = std::make_pair(
+							std::min(g, rhs + heuristic),
+							std::min(g, rhs));
+	}
+
+	void calculate_key()
+	{
+		key = std::make_pair(
+							std::min(g, rhs + heuristic),
+							std::min(g, rhs));
 	}
 
 	void to_string()

@@ -11,6 +11,12 @@
 
 #include "model.h"
 
+/*
+	Superclass from which Agent and Obstacle inherit.
+	Stores a position, a radius (for collision detection with a bounding sphere), and whether the object is moveable.
+	Exists mostly so object slicing can occur to use in the octree.
+*/
+
 class GameObject
 {
 	public:

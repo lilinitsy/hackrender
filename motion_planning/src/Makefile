@@ -1,5 +1,5 @@
 CXX := clang++
-LDFLAGS := -g -fopenmp -flto -lSDL2 -lSDL2main -lSDL2_mixer -lglfw -lGL -ldl -lX11 -lassimp -I/usr/include/SDL2/ -I/usr/include/assimp/ -std=c++11
+LDFLAGS := -g -fopenmp -flto -lSDL2 -lSDL2main -lSDL2_mixer -lGL -ldl -lglfw -lX11 -lassimp -I/usr/include/SDL2/ -I/usr/include/assimp/ -std=c++11
 
 CPP_OBJS := glad/glad.o main.o Shader.o
 all: example

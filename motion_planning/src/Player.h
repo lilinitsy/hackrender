@@ -10,6 +10,10 @@
 #include <string>
 #include <vector>
 
+/*
+	Please don't modify me! Only one of me should exist.
+*/
+
 struct Player
 {
 	glm::vec3 camera_pos;

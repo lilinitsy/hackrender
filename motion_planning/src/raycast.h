@@ -9,6 +9,15 @@
 #include "GameObject.h"
 #include "ray.h"
 
+
+/*
+	This is a collection of assorted functions used in raycasting.
+		ONLY SUPPORTS SPHERES - NEED TO UPDATE FOR OTHER OBJECTS if we want those. 
+		Won't be hard to get rectangles in?
+*/
+
+
+// quadratic formula solver. Returning INFINITY means the ray didn't intersect with anything.
 float smallest_root(float a, float b, float c)
 {
 	float discriminant = b * b - 4 * a * c;
@@ -34,10 +43,15 @@ float smallest_root(float a, float b, float c)
 	return INFINITY;
 }
 
-
+/*
+	This constructs the a, b, c parameters in the quadratic formula.
+	e_c is a vector from the ray position to the object position.
+	
+	This is for spheres.
+*/
 float collision_distance(Ray ray, GameObject *game_object, float agent_radius)
 {
-	glm::vec3 e_c = ray.position - (game_object->position);// + agent_radius);
+	glm::vec3 e_c = ray.position - (game_object->position);// DO NOT DO: + agent_radius);
 	float a = glm::dot(ray.direction, ray.direction);
 	float b = 2 * glm::dot(ray.direction, e_c);
 	float c = glm::dot(e_c, e_c) - (game_object->radius * game_object->radius + agent_radius * agent_radius);
@@ -57,6 +71,7 @@ bool intersection_occurs(Ray ray, GameObject *game_object, float agent_radius)
 	return true;
 }
 
+// this function DOES NOT WORK. It's for octree intersections.
 bool intersection_occurs(Ray ray, Octree otree, float agent_radius)
 {
 	glm::vec3 top_front_left = glm::vec3(otree.position.x - otree.half_dimension.x,
